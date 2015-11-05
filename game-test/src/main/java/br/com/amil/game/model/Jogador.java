@@ -80,24 +80,12 @@ public class Jogador implements Comparable<Jogador> {
 		return nome;
 	}
 
-	public void setNome(String nome) {
-		this.nome = nome;
-	}
-
 	public StatusJogador getStatus() {
 		return status;
 	}
 
-	public void setStatus(StatusJogador status) {
-		this.status = status;
-	}
-
 	public ScoreJogador getScore() {
 		return score;
-	}
-
-	public void setScore(ScoreJogador score) {
-		this.score = score;
 	}
 
 	public List<Arma> getArmasUsadas() {
