@@ -16,7 +16,8 @@ public class Jogador implements Comparable<Jogador> {
 	/**
 	 * Construindo o jogador.
 	 * 
-	 * @param nome - nome do jogador
+	 * @param nome
+	 *            - nome do jogador
 	 */
 	public Jogador(String nome) {
 		this.nome = nome;
@@ -36,11 +37,11 @@ public class Jogador implements Comparable<Jogador> {
 		this.score.addMaiorSequenciaAssassinatoSemMorrer();
 		this.registraArma(armaUsada);
 	}
-	
+
 	private void registraArma(Arma arma) {
-		if(this.armasUsadas.contains(arma)) {
+		if (this.armasUsadas.contains(arma)) {
 			for (Arma armaUsada : armasUsadas) {
-				if(armaUsada.equals(arma)){
+				if (armaUsada.equals(arma)) {
 					armaUsada.addUso();
 				}
 			}
@@ -50,30 +51,29 @@ public class Jogador implements Comparable<Jogador> {
 		}
 	}
 
-
 	public String getArmaFavorita() {
-		
-		if(this.armasUsadas.isEmpty()) return null;
-		
-		Collections.sort(this.armasUsadas, new Comparator<Arma>(){
+
+		if (this.armasUsadas.isEmpty())
+			return null;
+
+		Collections.sort(this.armasUsadas, new Comparator<Arma>() {
 
 			public int compare(Arma o1, Arma o2) {
-				
-				if(o1.getNumeroUsos() > o2.getNumeroUsos()){
+
+				if (o1.getNumeroUsos() > o2.getNumeroUsos()) {
 					return -1;
-				} else if(o1.getNumeroUsos() < o2.getNumeroUsos()){
+				} else if (o1.getNumeroUsos() < o2.getNumeroUsos()) {
 					return 1;
 				}
-				
+
 				return 0;
 			}
-			
+
 		});
-		
+
 		return this.armasUsadas.get(0).getNome();
 	}
-	
-	
+
 	/* getters and setters */
 
 	public String getNome() {
@@ -105,21 +105,19 @@ public class Jogador implements Comparable<Jogador> {
 	}
 
 	public int compareTo(Jogador o) {
-		if(this.getScore().getTotalAssassinatos() > o.getScore().getTotalAssassinatos()){
+		if (this.getScore().getTotalAssassinatos() > o.getScore().getTotalAssassinatos()) {
 			return -1;
-		}
-		else if(this.getScore().getTotalAssassinatos() < o.getScore().getTotalAssassinatos()){
+		} else if (this.getScore().getTotalAssassinatos() < o.getScore().getTotalAssassinatos()) {
 			return 1;
 		}
-		
+
 		return 0;
 	}
-	
-	
+
 	public enum StatusJogador {
 		JOGANDO, MATOU, MORREU;
 	}
-	
+
 	/**
 	 * Score do jogador em uma partida.
 	 * 
@@ -133,22 +131,23 @@ public class Jogador implements Comparable<Jogador> {
 		private boolean morreuNaPartida;
 		private int maiorSequenciaAssassinatosSemMorrer;
 		private Date ultimoAssassinato;
-		
+
 		public void addTotalAssassinatos() {
 			this.totalAssassinatos++;
 		}
-		
+
 		public void addMaiorSequenciaAssassinatoSemMorrer() {
-			if(!this.morreuNaPartida) this.maiorSequenciaAssassinatosSemMorrer++;
+			if (!this.morreuNaPartida)
+				this.maiorSequenciaAssassinatosSemMorrer++;
 		}
-		
+
 		public void morreu() {
 			this.morreuNaPartida = true;
 			this.maiorSequenciaAssassinatosSemMorrer = 0;
 		}
-		
+
 		/* getter and setters */
-		
+
 		public int getTotalAssassinatos() {
 			return totalAssassinatos;
 		}
@@ -189,6 +188,34 @@ public class Jogador implements Comparable<Jogador> {
 			this.ultimoAssassinato = ultimoAssassinato;
 		}
 
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((nome == null) ? 0 : nome.hashCode());
+		result = prime * result + ((status == null) ? 0 : status.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Jogador other = (Jogador) obj;
+		if (nome == null) {
+			if (other.nome != null)
+				return false;
+		} else if (!nome.equals(other.nome))
+			return false;
+		if (status != other.status)
+			return false;
+		return true;
 	}
 
 }
