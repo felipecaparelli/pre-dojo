@@ -1,9 +1,10 @@
 package br.com.amil.game.util;
 
+import java.io.InputStream;
 import java.util.regex.Pattern;
 
 /**
- * Classe utilitária para leitura e identificação dos trechos do log.
+ * Classe utilitï¿½ria para leitura e identificaï¿½ï¿½o dos trechos do log.
  * 
  * @author Felipe Caparelli
  */
@@ -14,6 +15,9 @@ public class LogJogoUtils {
 	private static final Pattern PATTERN_MORTE_JOGADOR = Pattern.compile("killed");
 	private static final Pattern PATTERN_MORTE_POR_WORLD = Pattern.compile("<WORLD>");
 	
+	public static InputStream getFileStream() {
+		return LogJogoUtils.class.getResourceAsStream("/log.txt");
+	}
 	
 	public static boolean isNovaPartida(String linha) {
 		return PATTERN_NOVA_PARTIDA.matcher(linha).find();

@@ -57,7 +57,6 @@ public class Jogador implements Comparable<Jogador> {
 		
 		Collections.sort(this.armasUsadas, new Comparator<Arma>(){
 
-			@Override
 			public int compare(Arma o1, Arma o2) {
 				
 				if(o1.getNumeroUsos() > o2.getNumeroUsos()){
@@ -105,7 +104,6 @@ public class Jogador implements Comparable<Jogador> {
 		return armasUsadas;
 	}
 
-	@Override
 	public int compareTo(Jogador o) {
 		if(this.getScore().getTotalAssassinatos() > o.getScore().getTotalAssassinatos()){
 			return -1;

@@ -4,6 +4,7 @@ import java.util.Date;
 
 /**
  * Representa a ocorrencia de uma morte/assassinato na partida.
+ * 
  * @author Felipe Caparelli
  *
  */
@@ -25,32 +26,16 @@ public class Assassinato {
 		return assassino;
 	}
 
-	public void setAssassino(Jogador assassino) {
-		this.assassino = assassino;
-	}
-
 	public Jogador getAssassinado() {
 		return assassinado;
-	}
-
-	public void setAssassinado(Jogador assassinado) {
-		this.assassinado = assassinado;
 	}
 
 	public Arma getArmaUsada() {
 		return armaUsada;
 	}
 
-	public void setArmaUsada(Arma armaUsada) {
-		this.armaUsada = armaUsada;
-	}
-
 	public Date getDataHoraMorte() {
 		return dataHoraMorte;
-	}
-
-	public void setDataHoraMorte(Date dataHoraMorte) {
-		this.dataHoraMorte = dataHoraMorte;
 	}
 
 }

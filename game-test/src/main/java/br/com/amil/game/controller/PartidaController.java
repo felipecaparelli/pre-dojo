@@ -1,7 +1,5 @@
 package br.com.amil.game.controller;
 
-import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,37 +16,62 @@ public class PartidaController {
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 	
 	
-	public static void main(String[] args) throws Exception {
+	public String[][] execute() throws Exception {
 		
-		//1 - recebe/carrega arquivo
-		ClassLoader classLoader = PartidaController.class.getClassLoader();
-		File arquivo = new File(classLoader.getResource("pre-dojo-log.txt").getFile());
+		String[][] resultados = null;
 		
 		//2 - executar leitura do log
-		List<Partida> partidas = processar(arquivo);
+		List<Partida> partidas = processar();
 		
-		for (Partida partida : partidas) {
-			System.out.println("** Ranking da partida: "+ partida.getNome() + " ** ");
-			ScorePartida score = partida.getScorePartida();
-			// quantidade assassinatos
-			System.out.println("Total de assassinatos geral: " + score.getQuantidadeAssassinatos());
-			// quantidade de mortes de cada jogador;
+		
+		if(partidas != null && !partidas.isEmpty()) {
 			
-			int posicao = 1;
-			for(Jogador assassino : score.getRankingAssassinos()){
-				System.out.println("Assassino: "  + posicao + " - " + assassino.getNome() + " - Arma favorita: " + assassino.getArmaFavorita() + " total de assassinatos: " + assassino.getScore().getTotalAssassinatos());
-				// + "The best streak:" + p.getStreak().getBestNumKillsSequence() + " He wins :" + p.getStreak().getAwardForMinute() +" minute kills award and " + awardGame+ " award for the match! "
-				posicao++;
+			resultados = new String[partidas.size()][2];
+			
+			for (int i = 0; i < partidas.size(); i++) {
+				
+				Partida partida = partidas.get(i);
+				
+				// ranking de cada partida [nome, ranking]
+				String [] resultadoPartida = new String[2];
+				resultadoPartida[0] = "PARTIDA " + partida.getNome();
+				
+				System.out.println("** Ranking da partida: "+ partida.getNome() + " ** ");
+				
+				ScorePartida score = partida.getScorePartida();
+				// quantidade assassinatos
+				System.out.println("Total de assassinatos geral: " + score.getQuantidadeAssassinatos());
+				
+				StringBuffer sb = new StringBuffer();
+				
+				int posicao = 1;
+				for(Jogador assassino : score.getRankingAssassinos()){
+					// jogador assassino
+					sb.append("Assassino: "  + posicao + " - " + assassino.getNome() + "\n")
+					.append(" total de assassinatos: " + assassino.getScore().getTotalAssassinatos() + "\n")
+					.append(" - Arma favorita: " + assassino.getArmaFavorita() + "\n\n");
+					
+					System.out.print("Assassino: "  + posicao + " - " + assassino.getNome());
+					// quantidade de mortes de cada jogador
+					System.out.println(" total de assassinatos: " + assassino.getScore().getTotalAssassinatos());
+					//arma preferida (a que mais matou) do vencedor
+					System.out.print(" - Arma favorita: " + assassino.getArmaFavorita());
+					posicao++;
+				}
+				
+				resultadoPartida[1] = sb.toString();
+				/**
+				 * Identificar a maior sequï¿½ncia de assassinatos efetuadas por um jogador (streak) sem morrer, dentro da partida;
+				 * Jogadores que vencerem uma partida sem morrerem devem ganhar um "award";
+				 * Jogadores que matarem 5 vezes em 1 minuto devem ganhar um "award"
+				 */
+				//adiciona o ranking da partida
+				resultados[i] = resultadoPartida;
 			}
-			/**
-			 * Montar o ranking de cada partida, com a quantidade assassinatos e a quantidade de mortes de cada jogador;
-			-----
-			* Descobrir a arma preferida (a que mais matou) do vencedor;
-			* Identificar a maior sequência de assassinatos efetuadas por um jogador (streak) sem morrer, dentro da partida;
-			* Jogadores que vencerem uma partida sem morrerem devem ganhar um "award";
-			* Jogadores que matarem 5 vezes em 1 minuto devem ganhar um "award"
-			 */
 		}
+		
+		
+		return resultados;
 	}
 	
 	/**
@@ -56,57 +79,54 @@ public class PartidaController {
 	 * 
 	 * @throws Exception
 	 */
-	public static List<Partida> processar(File arquivo) throws Exception {
+	private static List<Partida> processar() throws Exception {
 
 		Partida partida = null;
 		List<Partida> rodadas = null;
 		
-		if(arquivo.exists()) {
-			
-			rodadas = new ArrayList<Partida>();
-			
-			try (Scanner scanner = new Scanner(arquivo)) {
 
-				while (scanner.hasNextLine()) {
+		
+		rodadas = new ArrayList<Partida>();
+		
+		try (Scanner scanner = new Scanner(LogJogoUtils.getFileStream())) {
+
+			while (scanner.hasNextLine()) {
+				
+				//inicia leitura (linha a linha)
+				String linha = scanner.nextLine();
+				
+				//extrai elementos da linha
+				
+				// se inicio de partida...
+				if (LogJogoUtils.isNovaPartida(linha)) {
 					
-					//inicia leitura (linha a linha)
-					String linha = scanner.nextLine();
+					//gera partida
+					partida = new Partida(LogJogoUtils.lerNomeDaPartida(linha), sdf.parse(LogJogoUtils.lerDataHora(linha)));
 					
-					//extrai elementos da linha
+				// se assassinato...
+				} else if (LogJogoUtils.isMorteJogador(linha) && !LogJogoUtils.isMorteJogadorPorWORLD(linha)) {
 					
-					// se inicio de partida...
-					if (LogJogoUtils.isNovaPartida(linha)) {
-						
-						//gera partida
-						partida = new Partida(LogJogoUtils.lerNomeDaPartida(linha), sdf.parse(LogJogoUtils.lerDataHora(linha)));
-						
-					// se assassinato...
-					} else if (LogJogoUtils.isMorteJogador(linha) && !LogJogoUtils.isMorteJogadorPorWORLD(linha)) {
-						
-						String assassino = (LogJogoUtils.lerNomeAssassino(linha));
-						String assassinado = (LogJogoUtils.lerNomeAssassinado(linha));
-						String armaUsada = (LogJogoUtils.lerNomeArma(linha));
-						Date dataHoraMorte = sdf.parse(LogJogoUtils.lerDataHora(linha));
-						
-						//registra o assassinato
-						partida.addAssassinato(assassino, assassinado, armaUsada, dataHoraMorte);
-						
-					//se termino da partida...
-					} else if(LogJogoUtils.isFimPartida(linha)) {
-						
-						//finaliza a partida
-						partida.finaliza(sdf.parse(LogJogoUtils.lerDataHora(linha)));
-						
-						//e adiciona a mesma a lista de rodadas.
-						rodadas.add(partida);
-					}
+					String assassino = (LogJogoUtils.lerNomeAssassino(linha));
+					String assassinado = (LogJogoUtils.lerNomeAssassinado(linha));
+					String armaUsada = (LogJogoUtils.lerNomeArma(linha));
+					Date dataHoraMorte = sdf.parse(LogJogoUtils.lerDataHora(linha));
+					
+					//registra o assassinato
+					partida.addAssassinato(assassino, assassinado, armaUsada, dataHoraMorte);
+					
+				//se termino da partida...
+				} else if(LogJogoUtils.isFimPartida(linha)) {
+					
+					//finaliza a partida
+					partida.finaliza(sdf.parse(LogJogoUtils.lerDataHora(linha)));
+					
+					//e adiciona a mesma a lista de rodadas.
+					rodadas.add(partida);
 				}
-
-				scanner.close();
-
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
+
+			scanner.close();
+
 		}
 
 		return rodadas;
